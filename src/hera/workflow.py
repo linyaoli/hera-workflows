@@ -19,6 +19,7 @@ from hera.security_context import WorkflowSecurityContext
 from hera.task import Task
 from hera.toleration import Toleration
 from hera.ttl_strategy import TTLStrategy
+from hera.pod_gc import PodGC
 from hera.validators import validate_name
 from hera.volume_claim_gc import VolumeClaimGCStrategy
 from hera.workflow_editors import add_task, add_tasks
@@ -97,6 +98,7 @@ class Workflow:
         dag: Optional[DAG] = None,
         parameters: Optional[List[Parameter]] = None,
         tolerations: Optional[List[Toleration]] = None,
+        pod_gc: Optional[PodGC] = None,
     ):
         self.name = validate_name(name)
         self.service = service or WorkflowService()
@@ -118,6 +120,7 @@ class Workflow:
         self.dag = dag
         self.exit_task: Optional[str] = None
         self.tasks: List["Task"] = []
+        self.pod_gc = pod_gc
 
     def _build_metadata(self, use_name=True) -> ObjectMeta:
         """Assembles the metadata of the workflow"""
@@ -149,6 +152,9 @@ class Workflow:
 
         if self.ttl_strategy is not None:
             setattr(spec, "ttl_strategy", self.ttl_strategy.build())
+
+        if self.pod_gc is not None:
+            setattr(spec, "pod_gc", self.pod_gc.build())
 
         if self.volume_claim_gc_strategy is not None:
             setattr(
