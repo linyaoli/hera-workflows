@@ -86,6 +86,7 @@ class Workflow:
         self.annotations = annotations
         self.image_pull_secrets = image_pull_secrets
         self.workflow_template_ref = workflow_template_ref
+        self.pod_gc = pod_gc
 
         self.dag_template = IoArgoprojWorkflowV1alpha1DAGTemplate(tasks=[])
         self.template = IoArgoprojWorkflowV1alpha1Template(
@@ -113,6 +114,9 @@ class Workflow:
 
         if ttl_strategy:
             setattr(self.spec, 'ttl_strategy', ttl_strategy.argo_ttl_strategy)
+
+        if pod_gc:
+            setattr(self.spec, 'pod_gc', pod_gc.build())
 
         if self.security_context:
             security_context = self.security_context.get_security_context()
