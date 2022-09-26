@@ -16,6 +16,7 @@ from argo_workflows.models import (
 from hera.security_context import WorkflowSecurityContext
 from hera.task import Task
 from hera.ttl_strategy import TTLStrategy
+from hera.pod_gc import PodGC
 from hera.volumes import Volume
 from hera.workflow_service import WorkflowService
 
@@ -73,6 +74,7 @@ class Workflow:
         image_pull_secrets: Optional[List[str]] = None,
         workflow_template_ref: Optional[str] = None,
         ttl_strategy: Optional[TTLStrategy] = None,
+        pod_gc: Optional[PodGC] = None,
     ):
         self.name = f'{name.replace("_", "-")}-{str(uuid4()).split("-")[0]}'  # RFC1123
         self.namespace = namespace or 'default'

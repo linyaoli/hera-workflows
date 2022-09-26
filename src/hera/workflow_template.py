@@ -13,6 +13,7 @@ from argo_workflows.models import (
 from hera.security_context import WorkflowSecurityContext
 from hera.task import Task
 from hera.ttl_strategy import TTLStrategy
+from hera.pod_gc import PodGC
 from hera.volumes import Volume
 from hera.workflow_template_service import WorkflowTemplateService
 
@@ -57,6 +58,7 @@ class WorkflowTemplate:
         namespace: Optional[str] = None,
         security_context: Optional[WorkflowSecurityContext] = None,
         ttl_strategy: Optional[TTLStrategy] = None,
+        pod_gc: Optional[PodGC] = None,
     ):
         self.name = f'{name.replace("_", "-")}'  # RFC1123
         self.namespace = namespace or 'default'
@@ -65,6 +67,7 @@ class WorkflowTemplate:
         self.security_context = security_context
         self.service_account_name = service_account_name
         self.labels = labels
+        self.pod_gc = pod_gc
 
         self.dag_template = IoArgoprojWorkflowV1alpha1DAGTemplate(tasks=[])
         self.template = IoArgoprojWorkflowV1alpha1Template(
@@ -80,6 +83,9 @@ class WorkflowTemplate:
 
         if ttl_strategy:
             setattr(self.spec, 'ttl_strategy', ttl_strategy.argo_ttl_strategy)
+
+        if pod_gc:
+            setattr(self.spec, 'pod_gc', pod_gc.build())
 
         if self.security_context:
             security_context = self.security_context.get_security_context()
